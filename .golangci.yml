@@ -6,12 +6,6 @@ run:
   issues-exit-code: 1
   modules-download-mode: readonly
 
-output:
-  formats:
-    - format: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
-  uniq-by-line: true
 
 issues:
   max-issues-per-linter: 0
