@@ -25,6 +25,7 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
+// MetricRuleGenerator generates Terraform resources for SumoLogic metric rules.
 type MetricRuleGenerator struct {
 	SumoLogicService
 }
@@ -41,23 +42,23 @@ type metricRule struct {
 }
 
 func (g *MetricRuleGenerator) fetchMetricRule(name string) (*metricRule, error) {
-	baseUrl := strings.TrimSuffix(g.GetArgs()["baseUrl"].(string), "/")
-	accessId := g.GetArgs()["accessId"].(string)
+	baseURL := strings.TrimSuffix(g.GetArgs()["baseUrl"].(string), "/")
+	accessID := g.GetArgs()["accessId"].(string)
 	accessKey := g.GetArgs()["accessKey"].(string)
 
-	url := fmt.Sprintf("%s/v1/metricsRules/%s", baseUrl, name)
+	url := fmt.Sprintf("%s/v1/metricsRules/%s", baseURL, name)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(accessId, accessKey)
+	req.SetBasicAuth(accessID, accessKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -88,13 +89,14 @@ func (g *MetricRuleGenerator) getFilteredNames() []string {
 func (g *MetricRuleGenerator) createResource(rule *metricRule) terraformutils.Resource {
 	name := strcase.ToSnake(replaceSpaceAndDash(rule.Name))
 	return terraformutils.NewSimpleResource(
-		rule.Name, // TF provider uses name as the resource ID
+		rule.Name,
 		fmt.Sprintf("%s-%s", name, rule.Name),
 		"sumologic_metric_rule",
 		g.ProviderName,
 		[]string{})
 }
 
+// InitResources fetches metric rules by name and registers them as Terraform resources.
 func (g *MetricRuleGenerator) InitResources() error {
 	names := g.getFilteredNames()
 	if len(names) == 0 {

@@ -6,7 +6,6 @@ run:
   issues-exit-code: 1
   modules-download-mode: readonly
 
-
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
@@ -15,16 +14,16 @@ linters:
   default: none
   enable:
     - errcheck
-    - gosimple
     - govet
     - ineffassign
     - staticcheck
-    - typecheck
     - unused
-    - gofmt
     - revive
-    - goimports
     - gocritic
     - unconvert
     - unparam
-  fast: false
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
